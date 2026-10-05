@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Imagine log grabber
 // @namespace    imagine-log
-// @version      1.3.01
+// @version      1.4
 // @description  Save the open conversation, or walk selected saved conversations in this tab
 // @updateURL    https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
 // @downloadURL  https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
@@ -53,7 +53,14 @@
       GM_download({ url, name, saveAs: false, onload: () => resolve(true), onerror: () => resolve(false) });
     });
   }
-  function mainMedia() {
+  function stillUrl(id) {
+    const img = [...document.querySelectorAll("img")].find(el => (el.currentSrc || el.src || "").includes(id) && /assets\.grok\.com/.test(el.currentSrc || el.src || ""));
+    if (img) return (img.currentSrc || img.src).split("?")[0];
+    const hit = [...document.querySelectorAll("img, video")].map(el => el.currentSrc || el.src || "").find(src => /assets\.grok\.com\/users\/[0-9a-f-]{36}/.test(src));
+    const user = ((hit || "").match(/users\/([0-9a-f-]{36})/) || [])[1];
+    if (user) return "https://assets.grok.com/users/" + user + "/generated/" + id + "/preview_image.jpg";
+    return "https://grok.com/imagine/post/" + id + "/image";
+  }
     const nodes = [...document.querySelectorAll("img, video")].filter(el => !el.closest("[data-filmstrip-item]") && !el.closest("button"));
     const hit = nodes.find(el => /\/generated\/|\/imagine\/post\/[0-9a-f-]+\/image/i.test(el.currentSrc || el.src || ""));
     if (!hit) return null;
@@ -94,7 +101,7 @@
       const video = here && [...document.querySelectorAll("video")].find(el => (el.currentSrc || el.src || "").includes(here));
       const assets = [];
       if (video) assets.push({ id: here, kind: "video", url: (video.currentSrc || video.src).split("?")[0] });
-      else if (here) assets.push({ id: here, kind: "still", url: "https://grok.com/imagine/post/" + here + "/image" });
+      else if (here) assets.push({ id: here, kind: "still", url: stillUrl(here) });
       const seenAsset = mainMedia();
       if (seenAsset && seenAsset.id && seenAsset.id !== here) assets.push(seenAsset);
       for (const asset of assets) {
