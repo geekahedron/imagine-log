@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Imagine log grabber
 // @namespace    imagine-log
-// @version      1.2
+// @version      1.3
 // @description  Save the open conversation, or walk selected saved conversations in this tab
 // @updateURL    https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
 // @downloadURL  https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
@@ -93,8 +93,8 @@
       const here = postId(location.href);
       const video = here && [...document.querySelectorAll("video")].find(el => (el.currentSrc || el.src || "").includes(here));
       const assets = [];
-      if (here) assets.push({ id: here, kind: "still", url: "https://grok.com/imagine/post/" + here + "/image" });
       if (video) assets.push({ id: here, kind: "video", url: (video.currentSrc || video.src).split("?")[0] });
+      else if (here) assets.push({ id: here, kind: "still", url: "https://grok.com/imagine/post/" + here + "/image" });
       const seenAsset = mainMedia();
       if (seenAsset && seenAsset.id && seenAsset.id !== here) assets.push(seenAsset);
       for (const asset of assets) {
