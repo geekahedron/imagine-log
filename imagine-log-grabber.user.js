@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Imagine log grabber
 // @namespace    imagine-log
-// @version      1.4
+// @version      1.4.1
 // @description  Save the open conversation, or walk selected saved conversations in this tab
 // @updateURL    https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
 // @downloadURL  https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
@@ -61,6 +61,7 @@
     if (user) return "https://assets.grok.com/users/" + user + "/generated/" + id + "/preview_image.jpg";
     return "https://grok.com/imagine/post/" + id + "/image";
   }
+  function mainMedia() {
     const nodes = [...document.querySelectorAll("img, video")].filter(el => !el.closest("[data-filmstrip-item]") && !el.closest("button"));
     const hit = nodes.find(el => /\/generated\/|\/imagine\/post\/[0-9a-f-]+\/image/i.test(el.currentSrc || el.src || ""));
     if (!hit) return null;
