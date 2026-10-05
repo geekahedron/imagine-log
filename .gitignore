@@ -1,0 +1,6 @@
+media/
+thumbs/
+imports/
+catalog.js
+__pycache__/
+*.pyc
