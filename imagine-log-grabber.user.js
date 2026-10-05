@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Imagine log grabber
 // @namespace    imagine-log
-// @version      1.3
+// @version      1.3.01
 // @description  Save the open conversation, or walk selected saved conversations in this tab
 // @updateURL    https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
 // @downloadURL  https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
@@ -123,6 +123,11 @@
     for (let i = 0; i < strip.length; i += 1) {
       strip[i].click();
       await take("Item " + (i + 1) + "/" + strip.length);
+    }
+    const videoIds = new Set(catalog.filter(row => row.kind === "video").map(row => row.id.replace(/^grok-video-/, "")));
+    for (let i = catalog.length - 1; i >= 0; i -= 1) {
+      const row = catalog[i];
+      if (row.kind === "still" && videoIds.has(row.id.replace(/^grok-image-/, ""))) catalog.splice(i, 1);
     }
     if (!catalog.length) { status("No file opened from this conversation"); return false; }
     const body = "window.CATALOG = " + JSON.stringify(catalog, null, 2) + ";\n";
