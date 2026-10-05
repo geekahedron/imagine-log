@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Imagine log grabber
 // @namespace    imagine-log
-// @version      1.1
+// @version      1.2
 // @description  Save the open conversation, or walk selected saved conversations in this tab
+// @updateURL    https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
+// @downloadURL  https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
 // @match        https://grok.com/imagine/*
 // @grant        GM_download
 // @connect      assets.grok.com
