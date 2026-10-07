@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Imagine log grabber
 // @namespace    imagine-log
-// @version      1.4.1
+// @version      1.5
 // @description  Save the open conversation, or walk selected saved conversations in this tab
 // @updateURL    https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
 // @downloadURL  https://raw.githubusercontent.com/geekahedron/imagine-log/master/imagine-log-grabber.user.js
@@ -85,13 +85,12 @@
       const id = postId(href || "");
       if (!id || seen.has(id)) return;
       seen.add(id);
-      found.push({ id, url: href.split("?")[0] });
+      found.push({ id, url: href, conversation: (href.match(/conversation=([0-9a-f-]{36})/i) || [])[1] || id });
     });
     return found;
   }
-  async function grab() {
-    const conversation = (location.href.match(/conversation=([0-9a-f-]{36})/i) || [])[1] || postId(location.href) || "page";
-    const strip = [...document.querySelectorAll("button[data-filmstrip-item]")];
+  async function grab(conversationId) {
+    const conversation = conversationId || (location.href.match(/conversation=([0-9a-f-]{36})/i) || [])[1] || postId(location.href) || "page";
     const catalog = [];
     const seen = new Set();
     let n = 0;
@@ -127,9 +126,17 @@
       }
     }
     const promptsOnly = localStorage.getItem("imagine-log-prompts") === "1";
+    let strip = [];
+    for (let i = 0; i < 16 && strip.length < 2; i += 1) {
+      strip = [...document.querySelectorAll("button[data-filmstrip-item]")];
+      if (strip.length) break;
+      await wait(500);
+    }
     await take("Open item");
     for (let i = 0; i < strip.length; i += 1) {
+      const before = postId(location.href);
       strip[i].click();
+      for (let t = 0; t < 8 && postId(location.href) === before; t += 1) await wait(250);
       await take("Item " + (i + 1) + "/" + strip.length);
     }
     const videoIds = new Set(catalog.filter(row => row.kind === "video").map(row => row.id.replace(/^grok-video-/, "")));
@@ -160,7 +167,7 @@
     showList(job.items, job.index);
     status("Saving " + (job.index + 1) + "/" + job.items.length);
     await wait(1200);
-    await grab();
+    await grab(item.conversation);
     job.index += 1;
     saveQueue(job.index >= job.items.length ? null : job);
     if (job.index >= job.items.length) {
